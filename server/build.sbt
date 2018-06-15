@@ -21,6 +21,8 @@ scalacOptions ++= Seq(
   "-Ywarn-unused-import"
 )
 
+scalafmtOnCompile in ThisBuild := true
+scalafmtTestOnCompile in ThisBuild := true
 
 val playsonifyVersion = "1.2.0"
 
