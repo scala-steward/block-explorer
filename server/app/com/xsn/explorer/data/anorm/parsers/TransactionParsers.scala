@@ -69,4 +69,12 @@ object TransactionParsers {
         script <- scriptMaybe
       } yield Transaction.Output(txid, index, value, address, script, tposOwnerAddress.flatten, tposMerchantAddress.flatten)
   }
+
+  val parseAddressTransactionDetails = (parseAddress ~ parseTransactionId ~ parseSent ~ parseReceived).map {
+    case address ~ txid ~ sent ~ received => AddressTransactionDetails(
+      address.getOrElse(throw new RuntimeException("failed to retrieve address")),
+      txid.getOrElse(throw new RuntimeException("failed to retrieve txid")),
+      sent = sent,
+      received = received)
+  }
 }
