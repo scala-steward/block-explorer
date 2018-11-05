@@ -348,13 +348,13 @@ class TransactionPostgresDAO @Inject() (fieldOrderingSQLInterpreter: FieldOrderi
         .outputs
         .groupBy(_.address)
         .mapValues { outputs => outputs.map(_.value).sum }
-        .map { case (address, value) => AddressTransactionDetails(address, transaction.id, received = value) }
+        .map { case (address, value) => AddressTransactionDetails(address, transaction.id, time = transaction.time, received = value) }
 
     val sent = transaction
         .inputs
         .groupBy(_.address)
         .mapValues { inputs => inputs.map(_.value).sum }
-        .map { case (address, value) => AddressTransactionDetails(address, transaction.id, sent = value) }
+        .map { case (address, value) => AddressTransactionDetails(address, transaction.id, time = transaction.time, sent = value) }
 
     val result = (received ++ sent)
         .groupBy(_.address)
@@ -373,16 +373,17 @@ class TransactionPostgresDAO @Inject() (fieldOrderingSQLInterpreter: FieldOrderi
     SQL(
       """
         |INSERT INTO address_transaction_details
-        |  (address, txid, received, sent)
+        |  (address, txid, received, sent, time)
         |VALUES
-        |  ({address}, {txid}, {received}, {sent})
-        |RETURNING address, txid, received, sent
+        |  ({address}, {txid}, {received}, {sent}, {time})
+        |RETURNING address, txid, received, sent, time
       """.stripMargin
     ).on(
       'address  -> details.address.string,
       'txid -> details.txid.string,
       'received -> details.received,
-      'sent -> details.sent
+      'sent -> details.sent,
+      'time -> details.time
     ).as(parseAddressTransactionDetails.single)
   }
 
@@ -391,7 +392,7 @@ class TransactionPostgresDAO @Inject() (fieldOrderingSQLInterpreter: FieldOrderi
       """
         |DELETE FROM address_transaction_details
         |WHERE txid = {txid}
-        |RETURNING address, txid, received, sent
+        |RETURNING address, txid, received, sent, time
       """.stripMargin
     ).on(
       'txid -> txid.string
