@@ -116,12 +116,10 @@ class BalancePostgresDAO @Inject() (fieldOrderingSQLInterpreter: FieldOrderingSQ
   def countNonZeroBalances(implicit conn: Connection): Count = {
     val result = SQL(
       """
-        |SELECT COUNT(*)
-        |FROM balances
-        |WHERE address NOT IN (
-        |  SELECT address
-        |  FROM hidden_addresses) AND
-        |      (received - spent) > 0
+        |SELECT (
+        |  count_estimate('SELECT 1 FROM balances WHERE (received - spent) > 0') -
+        |  (SELECT COUNT(*) FROM hidden_addresses)
+        |)
       """.stripMargin
     ).as(SqlParser.scalar[Int].single)
 

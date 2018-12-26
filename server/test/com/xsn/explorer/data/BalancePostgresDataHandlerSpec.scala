@@ -124,6 +124,7 @@ class BalancePostgresDataHandlerSpec extends PostgresDataHandlerSpec {
           .map(dataHandler.upsert)
           .foreach(_.isGood mustEqual true)
     }
+
     "ignore addresses with balance = 0" in {
       prepare()
       val query = PaginatedQuery(Offset(0), Limit(1))
@@ -131,7 +132,6 @@ class BalancePostgresDataHandlerSpec extends PostgresDataHandlerSpec {
 
       val result = dataHandler.getNonZeroBalances(query, defaultOrdering)
       result.map(_.data) mustEqual Good(expected)
-      result.get.total.int mustEqual balances.size - 1
     }
   }
 
