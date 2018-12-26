@@ -156,9 +156,11 @@ class TransactionPostgresDataHandlerSpec extends PostgresDataHandlerSpec with Be
 
     "find no results" in {
       val expected = PaginatedResult(query.offset, query.limit, Count(0), List.empty)
-      val result = dataHandler.getBy(address, query, defaultOrdering)
+      val result = dataHandler.getBy(address, query, defaultOrdering).get
 
-      result mustEqual Good(expected)
+      result.data mustEqual expected.data
+      result.offset mustEqual expected.offset
+      result.limit mustEqual expected.limit
     }
 
     "find the right values" in {
@@ -170,8 +172,10 @@ class TransactionPostgresDataHandlerSpec extends PostgresDataHandlerSpec with Be
       val expected = PaginatedResult(query.offset, query.limit, Count(1), List(transactionWithValues))
       upsertTransaction(transaction).isGood mustEqual true
 
-      val result = dataHandler.getBy(address, query, defaultOrdering)
-      result mustEqual Good(expected)
+      val result = dataHandler.getBy(address, query, defaultOrdering).get
+      result.data mustEqual expected.data
+      result.offset mustEqual expected.offset
+      result.limit mustEqual expected.limit
     }
   }
 

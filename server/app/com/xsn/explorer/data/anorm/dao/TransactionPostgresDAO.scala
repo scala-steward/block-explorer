@@ -114,11 +114,10 @@ class TransactionPostgresDAO @Inject() (fieldOrderingSQLInterpreter: FieldOrderi
   }
 
   def countBy(address: Address)(implicit conn: Connection): Count = {
+    val escape = "$$"
     val result = SQL(
-      """
-        |  SELECT COUNT(*)
-        |  FROM address_transaction_details
-        |  WHERE address = {address}
+      s"""
+        |SELECT count_estimate(${escape}SELECT 1 FROM address_transaction_details WHERE address = '$address'${escape})
       """.stripMargin
     ).on(
       'address -> address.string
