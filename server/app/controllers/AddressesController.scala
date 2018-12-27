@@ -27,6 +27,11 @@ class AddressesController @Inject() (
     transactionService.getTransactions(address, paginatedQuery, OrderingQuery(ordering))
   }
 
+  def getLightWalletTransactions(address: String, limit: Int, before: Long) = public { _ =>
+    val x = if (before > 0) before else java.lang.System.currentTimeMillis()
+    transactionService.getLightWalletTransactions(address, x, Limit(limit))
+  }
+
   /**
    * Format to keep compatibility with the previous approach using the RPC api.
    */
